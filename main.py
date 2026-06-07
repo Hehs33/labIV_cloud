@@ -1,7 +1,9 @@
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Optional
+import os
 
 app = FastAPI(title="API Distribuida - Laboratorio IV")
 
@@ -22,11 +24,11 @@ class Tarea(BaseModel):
 tareas: List[Tarea] = []
 contador_id = 0
 
-@app.get("/tareas")
+@app.get("/api/tareas")
 def listar_tareas():
     return tareas
 
-@app.post("/tareas", status_code=status.HTTP_201_CREATED)
+@app.post("/api/tareas", status_code=status.HTTP_201_CREATED)
 def crear_tarea(tarea: Tarea):
     global contador_id
     contador_id += 1
@@ -34,7 +36,7 @@ def crear_tarea(tarea: Tarea):
     tareas.append(tarea)
     return {"mensaje": "Tarea creada exitosamente", "tarea": tarea}
 
-@app.delete("/tareas/{id}", status_code=status.HTTP_200_OK)
+@app.delete("/api/tareas/{id}", status_code=status.HTTP_200_OK)
 def eliminar_tarea(id: int):
     tarea_encontrada = next((t for t in tareas if t.id == id), None)
     if not tarea_encontrada:
@@ -42,7 +44,7 @@ def eliminar_tarea(id: int):
     tareas.remove(tarea_encontrada)
     return {"mensaje": "Tarea eliminada", "tarea": tarea_encontrada}
 
-@app.put("/tareas/{id}", status_code=status.HTTP_200_OK)
+@app.put("/api/tareas/{id}", status_code=status.HTTP_200_OK)
 def actualizar_tarea(id: int, tarea_actualizada: Tarea):
     tarea_encontrada = next((t for t in tareas if t.id == id), None)
     if not tarea_encontrada:
