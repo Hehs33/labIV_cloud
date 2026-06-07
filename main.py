@@ -27,8 +27,8 @@ contador_id = 0
 
 @app.get("/")
 def serve_index():
-    base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    return FileResponse(os.path.join(base, "index.html"))
+    html_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "index.html")
+    return FileResponse(html_path)
 
 @app.get("/tareas")
 def listar_tareas():
@@ -59,7 +59,3 @@ def actualizar_tarea(id: int, tarea_actualizada: Tarea):
     index = tareas.index(tarea_encontrada)
     tareas[index] = tarea_actualizada
     return {"mensaje": "Tarea actualizada", "tarea": tarea_actualizada}
-
-@app.get("/")
-def serve_index():
-    return FileResponse("index.html")
