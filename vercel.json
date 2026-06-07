@@ -1,14 +1,21 @@
 {
-  "builds": [
-    {
-      "src": "main.py",
-      "use": "@vercel/python"
-    }
-  ],
+  "buildCommand": "pip install -r requirements.txt",
   "routes": [
     {
+      "src": "/api/(.*)",
+      "dest": "/api/main.py"
+    },
+    {
+      "src": "/docs",
+      "dest": "/api/main.py"
+    },
+    {
+      "src": "/openapi.json",
+      "dest": "/api/main.py"
+    },
+    {
       "src": "/(.*)",
-      "dest": "main.py"
+      "dest": "/index.html"
     }
   ]
 }
