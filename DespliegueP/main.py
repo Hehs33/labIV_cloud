@@ -1,12 +1,11 @@
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List
 import os
 
-
-app = FastAPI(title="API Distribuida - Laboratorio IV")
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
@@ -17,44 +16,42 @@ app.add_middleware(
 )
 
 class Tarea(BaseModel):
-    id: Optional[int] = None
+    id: int = None
     titulo: str
     descripcion: str
     completada: bool = False
 
 tareas: List[Tarea] = []
-contador_id = 0
 
 @app.get("/")
-def serve_index():
+async def serve_index():
     html_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "index.html")
     return FileResponse(html_path)
 
 @app.get("/tareas")
-def listar_tareas():
+async def listar_tareas():
     return tareas
 
-@app.post("/tareas", status_code=status.HTTP_201_CREATED)
-def crear_tarea(tarea: Tarea):
-    global contador_id
-    contador_id += 1
-    tarea.id = contador_id
+@app.post("/tareas")
+async def crear_tarea(tarea: Tarea):
+    tarea.id = len(tareas) + 1
     tareas.append(tarea)
     return {"mensaje": "Tarea creada exitosamente", "tarea": tarea}
 
-@app.delete("/tareas/{id}", status_code=status.HTTP_200_OK)
-def eliminar_tarea(id: int):
+@app.delete("/tareas/{id}")
+async def eliminar_tarea(id: int):
+    global tareas
     tarea_encontrada = next((t for t in tareas if t.id == id), None)
     if not tarea_encontrada:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tarea no encontrada")
-    tareas.remove(tarea_encontrada)
+        return {"error": "Tarea no encontrada"}
+    tareas = [t for t in tareas if t.id != id]
     return {"mensaje": "Tarea eliminada", "tarea": tarea_encontrada}
 
-@app.put("/tareas/{id}", status_code=status.HTTP_200_OK)
-def actualizar_tarea(id: int, tarea_actualizada: Tarea):
+@app.put("/tareas/{id}")
+async def actualizar_tarea(id: int, tarea_actualizada: Tarea):
     tarea_encontrada = next((t for t in tareas if t.id == id), None)
     if not tarea_encontrada:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tarea no encontrada")
+        return {"error": "Tarea no encontrada"}
     tarea_actualizada.id = id
     index = tareas.index(tarea_encontrada)
     tareas[index] = tarea_actualizada
