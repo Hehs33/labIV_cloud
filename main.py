@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 import os
 
+
 app = FastAPI(title="API Distribuida - Laboratorio IV")
 
 app.add_middleware(
@@ -58,3 +59,7 @@ def actualizar_tarea(id: int, tarea_actualizada: Tarea):
     index = tareas.index(tarea_encontrada)
     tareas[index] = tarea_actualizada
     return {"mensaje": "Tarea actualizada", "tarea": tarea_actualizada}
+
+@app.get("/")
+def serve_index():
+    return FileResponse("index.html")
