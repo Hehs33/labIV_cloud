@@ -1,7 +1,9 @@
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import List, Optional
+import os
 
 app = FastAPI(title="API Distribuida - Laboratorio IV")
 
@@ -21,6 +23,11 @@ class Tarea(BaseModel):
 
 tareas: List[Tarea] = []
 contador_id = 0
+
+@app.get("/")
+def serve_index():
+    base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return FileResponse(os.path.join(base, "index.html"))
 
 @app.get("/tareas")
 def listar_tareas():
